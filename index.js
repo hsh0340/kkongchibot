@@ -1,6 +1,7 @@
 import { Client, GatewayIntentBits, REST, Routes } from 'discord.js';
 const client = new Client({ intents: [GatewayIntentBits.Guilds] });
 import dotenv from "dotenv";
+import axios from 'axios';
 
 dotenv.config();
 
@@ -27,11 +28,30 @@ client.on('ready', () => {
     console.log(`Logged in as ${client.user.tag}!`);
 });
 
+const getCharacterInfo = async (characterName) => {
+    const url = `https://developer-lostark.game.onstove.com/characters/${characterName}/siblings`;
+    try {
+        const response = await axios.get(url, {
+            headers: {
+                Authorization: `Bearer ${process.env.API_KEY}`,
+                'Content-Type': 'application/json',
+            }
+        })
+        await console.log('response', response.data);
+        return response.data;
+    } catch(err) {
+        console.log(err);
+    }
+}
+
 client.on('interactionCreate', async interaction => {
     if (!interaction.isChatInputCommand()) return;
 
     if (interaction.commandName === '꽁치야') {
-        await interaction.reply('네 주인님');
+
+        const info = JSON.stringify(await getCharacterInfo('꽁치누나'));
+        console.log('info', info)
+        await interaction.reply(info);
     }
 });
 
