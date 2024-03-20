@@ -11,7 +11,7 @@ const commands = [
     },
 ];
 
-const rest = new REST({ version: '10' }).setToken(process.env.CLIENT_SECRET);
+const rest = new REST({ version: '10' }).setToken(process.env.TOKEN);
 
 try {
     console.log('Started refreshing application (/) commands.');
@@ -35,4 +35,4 @@ client.on('interactionCreate', async interaction => {
     }
 });
 
-client.login(process.env.CLIENT_SECRET);
+client.login(process.env.TOKEN);
