@@ -48,6 +48,7 @@ client.on('interactionCreate', async interaction => {
     if (!interaction.isChatInputCommand()) return;
 
     if (interaction.commandName === '꽁치야') {
+
         const info = JSON.stringify(await getCharacterInfo('꽁치누나'));
         console.log('info', info)
         await interaction.reply(info);
