@@ -6,35 +6,36 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const discord_js_1 = require("discord.js");
 const client = new discord_js_1.Client({ intents: [discord_js_1.GatewayIntentBits.Guilds] });
 const dotenv_1 = __importDefault(require("dotenv"));
-const axios_1 = __importDefault(require("axios"));
+const smilegate_1 = require("./smilegate/smilegate");
 dotenv_1.default.config();
 const commands = [
     {
-        name: '꽁치야',
-        description: '꽁치를 불러보세요',
+        name: '캐릭터정보',
+        description: '캐릭터 정보 확인',
+    },
+    {
+        name: '메롱',
+        description: '메롱',
     },
 ];
 const token = process.env.TOKEN;
 const rest = new discord_js_1.REST({ version: '10' }).setToken(token);
-const getCharacterInfo = async (characterName) => {
-    const url = `https://developer-lostark.game.onstove.com/characters/${characterName}/siblings`;
-    try {
-        const response = await axios_1.default.get(url, {
-            headers: {
-                Authorization: `Bearer ${process.env.API_KEY}`,
-                'Content-Type': 'application/json',
-            }
-        });
-        console.log('response', response.data);
-        return response.data;
-    }
-    catch (err) {
-        console.log(err);
-    }
-};
 try {
     console.log('Started refreshing application (/) commands.');
-    rest.put(discord_js_1.Routes.applicationCommands('1219931909392699473'), { body: commands });
+    rest.put(discord_js_1.Routes.applicationCommands('1219931909392699473'), { body: [
+            {
+                name: '캐릭터정보',
+                description: '캐릭터 정보를 가져옵니다.',
+                options: [
+                    {
+                        name: '캐릭터명',
+                        description: '캐릭터 이름을 입력하세요.',
+                        type: 3,
+                        required: true
+                    }
+                ]
+            }
+        ] });
     console.log('Successfully reloaded application (/) commands.');
 }
 catch (error) {
@@ -48,10 +49,20 @@ client.on('ready', () => {
 client.on('interactionCreate', async (interaction) => {
     if (!interaction.isChatInputCommand())
         return;
-    if (interaction.commandName === '꽁치야') {
-        const info = JSON.stringify(await getCharacterInfo('꽁치누나'));
+    if (interaction.commandName === '캐릭터정보') {
+        const characterName = interaction.options.getString('캐릭터명');
+        console.log(characterName);
+        if (!characterName) {
+            await interaction.reply('제대로 입력해.');
+            return;
+        }
+        const info = JSON.stringify(await (0, smilegate_1.getOneCharacterProfile)(characterName));
         console.log('info', info);
         await interaction.reply(info);
     }
 });
+const data = new discord_js_1.SlashCommandBuilder().setName('echo')
+    .setDescription('Replies with your input!')
+    .addStringOption(option => option.setName('input')
+    .setDescription('The input to echo back'));
 client.login(process.env.TOKEN);
