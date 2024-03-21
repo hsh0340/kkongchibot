@@ -53,15 +53,12 @@ client.on('interactionCreate', async interaction => {
   if (interaction.commandName === '캐릭터정보') {
     const characterName = interaction.options.getString('캐릭터명');
 
-    console.log(characterName);
-
     if (!characterName) {
       await interaction.reply('제대로 입력해.')
       return;
     }
 
-    const info = JSON.stringify(await getOneCharacterProfile(characterName));
-    console.log('info', info)
+    const info = JSON.stringify(await getOneCharacterProfile(characterName)) + '!@!@';
     await interaction.reply(info);
   }
 });
