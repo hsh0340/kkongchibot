@@ -1,7 +1,12 @@
-import { Client, GatewayIntentBits, REST, Routes, SlashCommandBuilder } from 'discord.js';
+import {
+  Client,
+  GatewayIntentBits,
+  REST,
+  Routes,
+} from 'discord.js';
 const client = new Client({ intents: [GatewayIntentBits.Guilds] });
-import dotenv from "dotenv";
-import {getOneCharacterProfile} from "./smilegate/smilegate";
+import dotenv from 'dotenv';
+import { getOneCharacterProfile } from './smilegate/smilegate';
 
 dotenv.config();
 
@@ -21,7 +26,8 @@ const rest = new REST({ version: '10' }).setToken(token);
 try {
   console.log('Started refreshing application (/) commands.');
 
-  rest.put(Routes.applicationCommands('1219931909392699473'), { body: [
+  rest.put(Routes.applicationCommands('1219931909392699473'), {
+    body: [
       {
         name: '캐릭터정보',
         description: '캐릭터 정보를 가져옵니다.',
@@ -30,11 +36,12 @@ try {
             name: '캐릭터명',
             description: '캐릭터 이름을 입력하세요.',
             type: 3,
-            required: true
-          }
-        ]
-      }
-    ]});
+            required: true,
+          },
+        ],
+      },
+    ],
+  });
 
   console.log('Successfully reloaded application (/) commands.');
 } catch (error) {
@@ -47,26 +54,21 @@ client.on('ready', () => {
   }
 });
 
-client.on('interactionCreate', async interaction => {
+client.on('interactionCreate', async (interaction) => {
   if (!interaction.isChatInputCommand()) return;
 
   if (interaction.commandName === '캐릭터정보') {
     const characterName = interaction.options.getString('캐릭터명');
 
     if (!characterName) {
-      await interaction.reply('제대로 입력해.')
+      await interaction.reply('제대로 입력해.');
       return;
     }
 
-    const info = JSON.stringify(await getOneCharacterProfile(characterName)) + '!@!@';
+    const info =
+      JSON.stringify(await getOneCharacterProfile(characterName)) + '!@!@';
     await interaction.reply(info);
   }
 });
-
-const data = new SlashCommandBuilder().setName('echo')
-    .setDescription('Replies with your input!')
-    .addStringOption(option =>
-        option.setName('input')
-            .setDescription('The input to echo back'));
 
 client.login(process.env.TOKEN);
