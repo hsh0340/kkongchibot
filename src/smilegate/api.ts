@@ -18,3 +18,19 @@ export async function getAllCharacterProfiles(
     throw new Error();
   }
 }
+
+export async function getOneCharacterProfile(characterName: string) {
+  const url = `https://developer-lostark.game.onstove.com/armories/characters/${characterName}`;
+  try {
+    const response = await axios.get(url, {
+      headers: {
+        Authorization: `Bearer ${process.env.API_KEY}`,
+        'Content-Type': 'application/json',
+      },
+    });
+    return response.data;
+  } catch (err) {
+    console.log(err);
+    throw new Error();
+  }
+}
