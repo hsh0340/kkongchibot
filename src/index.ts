@@ -1,12 +1,9 @@
-import {
-  Client,
-  GatewayIntentBits,
-  REST,
-  Routes,
-} from 'discord.js';
+import { Client, GatewayIntentBits, REST, Routes } from 'discord.js';
 const client = new Client({ intents: [GatewayIntentBits.Guilds] });
 import dotenv from 'dotenv';
-import { getOneCharacterProfile } from './smilegate/smilegate';
+
+import { Embed } from './smilegate/types';
+import { getOneCharacterProfile } from './smilegate/api';
 
 dotenv.config();
 
@@ -65,9 +62,62 @@ client.on('interactionCreate', async (interaction) => {
       return;
     }
 
-    const info =
-      JSON.stringify(await getOneCharacterProfile(characterName)) + '!@!@';
-    await interaction.reply(info);
+    const info = await getOneCharacterProfile(characterName);
+
+    if (!info) {
+      await interaction.reply('존재하지 않는 캐릭터입니다.');
+      return;
+    }
+
+    const embed: Embed = {
+      color: 0x0099ff,
+      title: `${characterName}`,
+      author: {
+        name: '꽁치봇',
+        icon_url: 'https://i.imgur.com/AfFp7pu.png',
+        url: 'https://discord.js.org',
+      },
+      description: `서버 : ${info.ArmoryProfile.ServerName}\n길드 : ${info.ArmoryProfile.GuildName}\n클래스 : ${info.ArmoryProfile.CharacterClassName}\n전투 : ${info.ArmoryProfile.CharacterLevel}\n아이템 : ${info.ArmoryProfile.ItemAvgLevel}\n원정대 : ${info.ArmoryProfile.ExpeditionLevel}`,
+      fields: [
+        {
+          name: '--------------------------------------------',
+          value: '',
+          inline: false,
+        },
+        {
+          name: '장비',
+          value: `${info.ArmoryEquipment[0].Type} : ${info.ArmoryEquipment[0].Name}\n${info.ArmoryEquipment[1].Type} : ${info.ArmoryEquipment[1].Name}\n${info.ArmoryEquipment[2].Type} : ${info.ArmoryEquipment[2].Name}\n${info.ArmoryEquipment[3].Type} : ${info.ArmoryEquipment[3].Name}\n${info.ArmoryEquipment[4].Type} : ${info.ArmoryEquipment[4].Name}\n${info.ArmoryEquipment[5].Type} : ${info.ArmoryEquipment[5].Name}\n${info.ArmoryEquipment[6].Type} : ${info.ArmoryEquipment[6].Name}(${info.ArmoryEquipment[6].Grade})\n${info.ArmoryEquipment[7].Type} : ${info.ArmoryEquipment[7].Name}(${info.ArmoryEquipment[7].Grade})\n${info.ArmoryEquipment[8].Type} : ${info.ArmoryEquipment[8].Name}(${info.ArmoryEquipment[8].Grade})\n${info.ArmoryEquipment[9].Type} : ${info.ArmoryEquipment[9].Name}(${info.ArmoryEquipment[9].Grade})\n${info.ArmoryEquipment[10].Type} : ${info.ArmoryEquipment[10].Name}(${info.ArmoryEquipment[10].Grade})\n${info.ArmoryEquipment[12].Type} : ${info.ArmoryEquipment[12].Name}(${info.ArmoryEquipment[12].Grade})`,
+          inline: false,
+        },
+        {
+          name: '--------------------------------------------',
+          value: '',
+          inline: false,
+        },
+        {
+          name: '보석',
+          value: 'Some value here',
+          inline: false,
+        },
+        {
+          name: 'Inline field title',
+          value: 'Some value here',
+          inline: true,
+        },
+      ],
+      image: {
+        url: `${info.ArmoryProfile.CharacterImage}`,
+        width: 1000,
+      },
+      timestamp: new Date().toISOString(),
+      footer: {
+        text: '꽁치봇',
+        icon_url: 'https://i.imgur.com/AfFp7pu.png',
+      },
+    };
+    await interaction.reply({
+      embeds: [embed],
+    });
   }
 });
 
